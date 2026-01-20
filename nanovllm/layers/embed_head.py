@@ -21,6 +21,20 @@ class VocabParallelEmbedding(nn.Module):
         self.num_embeddings_per_partition = self.num_embeddings // self.tp_size
         self.vocab_start_idx = self.num_embeddings_per_partition * self.tp_rank
         self.vocab_end_idx = self.vocab_start_idx + self.num_embeddings_per_partition
+        
+        # 分片的逻辑在于，Token ID只有一个值为1，其他值为0。减掉为0的点乘，对结果无影响
+        
+        # [0, 1, 0] * [[32] = [12]
+        #              [12]
+        #              [14]]
+        
+        # [0, 1, 0, 0, 0, 0] * [[32] = [12]
+        #                       [12]
+        #                       [14]
+        #                       [19]
+        #                       [34]
+        #                       [95]]
+        
         self.weight = nn.Parameter(torch.empty(self.num_embeddings_per_partition, embedding_dim))
         self.weight.weight_loader = self.weight_loader
 
