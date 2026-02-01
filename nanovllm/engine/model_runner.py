@@ -12,6 +12,7 @@ from nanovllm.utils.context import set_context, get_context, reset_context
 from nanovllm.utils.loader import load_model
 
 
+# 实际执行推理任务的worker
 class ModelRunner:
 
     def __init__(self, config: Config, rank: int, event: Event | list[Event]):
